@@ -1,18 +1,59 @@
 from django.shortcuts import render, redirect
 from .models import Restaurant
 from .forms import RestaurantForm
+from .forms import SignupForm
+from .forms import SigninForm
+from django.contrib.auth import login,logout,authenticate
+
+# Create two forms, one for signing up and one for signing in.
+# Form for signing up should be called SignupForm.
+# Form for signing in should be called SigninForm.
+# Create a Sign-up view. It has been partially written for you, complete it.
+# Create a Sign-in view. It has been partially written for you, complete it.
+# Create a Sign-out view.
+# The URLs have already been written for you.
+# Create a link for the authentication views in the nav-bar.
+# Pass the tests.
+# Push your code.
 
 def signup(request):
-    
+    form = SignupForm()
+    if request.method == "POST":
+        form = SignupForm(request.POST, request.FILES)
+        if form.is_valid():
+            obj=form.save(commit=False)
+            obj.set_password(obj.password)
+            obj.save()
+            login(request,obj)
+            return redirect('restaurant-list')
+    context = {
+        "form":form,
+    }
     return render(request, 'signup.html', context)
 
+
+
 def signin(request):
-    
-    return 
+    form = SigninForm()
+    if request.method == "POST":
+        form = SigninForm(request.POST, request.FILES)
+        if form.is_valid():
+            my_user=form.cleaned_data['username']
+            my_pass=form.cleaned_data['password']
+            ob=authenticate(username=my_user,password=my_pass)
+            if ob is not None:
+                login(request,ob)
+                return redirect('restaurant-list')
+    context = {
+        "form":form,
+    }
+    return render(request, 'signin.html', context)
+
+
 
 def signout(request):
-    
-    return 
+    logout(request)
+    return redirect('signin')
 
 def restaurant_list(request):
     context = {
